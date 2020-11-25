@@ -2,7 +2,11 @@ import firebase from "firebase";
 
 class Fire {
   constructor() {
-    this.init();
+    try {
+      this.init();
+    } catch (err) {
+    }
+    //
     this.observeAuth();
   }
 
@@ -35,12 +39,14 @@ class Fire {
     return (firebase.auth().currentUser || {}).uid;
   }
 
-  get ref() {
-    return firebase.database().ref("messages");
+  get ref(id) {
+    return firebase.database().ref(`chats/${id}`)
   }
 
+  getChats = (uid) => firebase.database().ref(`users/${uid}`).once()
+
   parse = (snapshot) => {
-    const { timestamp: numberStamp, text, user } = snapshot.val();
+    const { timestamp: numberStamp, text, user, chatID } = snapshot.val();
     const { key: _id } = snapshot;
     const timestamp = new Date(numberStamp);
     const message = {
@@ -48,12 +54,21 @@ class Fire {
       timestamp,
       text,
       user,
+      chatID
     };
     return message;
   };
 
-  on = (callback) =>
-    this.ref
+  newGroupNumber = () => {
+    firebase.database().ref("groupCount").transaction((groupCount) => {
+      console.log(groupCount);
+      groupCount = groupCount + 1;
+      return groupCount;
+    });
+  }
+
+  on = (callback, chatID) =>
+    this.ref(chatID)
       .limitToLast(20)
       .on("child_added", (snapshot) => callback(this.parse(snapshot)));
 
@@ -63,17 +78,18 @@ class Fire {
   // send the message to the Backend
   send = (messages) => {
     for (let i = 0; i < messages.length; i++) {
-      const { text, user } = messages[i];
+      const { text, user, chatID } = messages[i];
       const message = {
         text,
         user,
         timestamp: this.timestamp,
+        chatID
       };
-      this.append(message);
+      this.append(message, message.chatID);
     }
   };
 
-  append = (message) => this.ref.push(message);
+  append = (message, id) => this.ref(id).push(message);
 
   // close the connection to the Backend
   off() {

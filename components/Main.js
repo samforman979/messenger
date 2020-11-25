@@ -8,6 +8,7 @@ import {
 } from "react-native";
 
 import Chat from "./Chat";
+import Fire from "./Fire";
 
 class Main extends React.Component {
   constructor(props) {
@@ -32,6 +33,9 @@ class Main extends React.Component {
             this.setState({ name: text });
           }}
         />
+        <TouchableOpacity onPress={() => {
+          Fire.shared.newGroupNumber();
+        }}><Text>Press Me</Text></TouchableOpacity>
         <TouchableOpacity onPress={this.onPress}>
           <Text>Next</Text>
         </TouchableOpacity>

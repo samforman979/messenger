@@ -3,15 +3,12 @@ import { View, StyleSheet, useCallback } from "react-native";
 import { GiftedChat } from "react-native-gifted-chat";
 import Fire from "./Fire";
 
-const Chat = () => {
-  Chat.navigationOptions = ({ navigation }) => ({
-    title: (navigation.state.params || {}).name || "Chat!",
-  });
+const ChatList = () => {
 
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    Fire.shared.on((message, 1) =>
+    Fire.shared.on((message) =>
       setMessages((previousMessages) =>
         GiftedChat.append(previousMessages, message)
       )
@@ -36,4 +33,4 @@ const Chat = () => {
 };
 
 const styles = StyleSheet.create({});
-export default Chat;
+export default ChatList;
